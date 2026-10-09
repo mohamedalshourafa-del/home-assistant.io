@@ -3,6 +3,7 @@ title: TIS Control
 description: Instructions on how to integrate a TIS Control smart-building system with Home Assistant.
 ha_category:
   - Light
+  - Switch
 ha_release: 2026.11
 ha_iot_class: Local Push
 ha_config_flow: true
@@ -11,6 +12,7 @@ ha_codeowners:
 ha_domain: tis_control
 ha_platforms:
   - light
+  - switch
 ha_integration_type: hub
 ha_quality_scale: bronze
 ---
@@ -19,12 +21,12 @@ The **TIS Control** {% term integration %} lets you control a [TIS Control](http
 
 ## Supported devices
 
-This integration supports TIS dimmer modules, for example:
+This integration supports:
 
-- DIM-6CH-2A, DIM-4CH-3A, DIM-2CH-6A and other DIM dimmers
-- TIS-DMX-48
+- **Dimmer modules**, for example DIM-6CH-2A, DIM-4CH-3A, DIM-2CH-6A and TIS-DMX-48. Each channel becomes a light.
+- **Relay modules**, for example RLY-4CH-10A, RLY-8CH-16A, VLC-6CH-3A and the RCU-20R20Z-IP controller. Each relay channel becomes a switch.
 
-Each dimmer channel becomes a light in Home Assistant. Relay, curtain and HVAC modules are not supported yet.
+Curtain and HVAC modules are not supported yet.
 
 ## Prerequisites
 
@@ -40,7 +42,7 @@ Port:
   description: "The TIS bus port. Leave it at `6000` unless your installer changed it."
 {% endconfiguration_basic %}
 
-During setup, Home Assistant asks every TIS module on the network to identify itself. This only reads information; nothing is switched. Every dimmer channel that is found is added as a light, grouped under a device named after the module.
+During setup, Home Assistant asks every TIS module on the network to identify itself. This only reads information; nothing is switched. Every dimmer channel that is found is added as a light, and every relay channel as a switch, grouped under a device named after the module.
 
 ## Supported functionality
 
@@ -52,7 +54,11 @@ Each dimmer channel is a light that supports:
 - Brightness
 - Transition (fade time, in whole seconds)
 
-When you turn a light on without choosing a brightness, it returns to the level it had before it was turned off.
+When you turn a light on without choosing a brightness, it returns to the level it had before it was turned off, whether that level was set from Home Assistant, a wall panel or the TIS app.
+
+### Switches
+
+Each relay channel is a switch that you can turn on and off. A relay can drive anything (lights, sockets, pumps, valves), so it is added as a switch; if it controls a light, you can show it as a light: open the switch's settings and change **Show as** to **Light**.
 
 ## Data updates
 
@@ -79,13 +85,13 @@ automation:
 
 ## Known limitations
 
-- Only dimmer channels are supported for now.
+- Only dimmer and relay channels are supported for now.
 - Channels are named **Channel 1**, **Channel 2**, and so on. Rename them in Home Assistant to match your rooms.
 - Modules added to the installation after setup appear after you remove and add the integration again.
 
 ## Troubleshooting
 
-### No TIS dimmers answered
+### No TIS dimmer or relay modules answered
 
 - Check that the IP address is the address of a TIS IP gateway.
 - Check that Home Assistant is on the same network as the gateway. Broadcasts do not cross routers or VLANs.
